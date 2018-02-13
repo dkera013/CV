@@ -1,0 +1,166 @@
+---
+title: "fantasy"
+output: pdf_document
+---
+
+# Overview
+
+An analysis of a player.
+
+```{r codeSetup, include=FALSE}
+# Load libraries ----
+# libraries required should already be loaded
+library("rvest")
+library("stringr")
+library("tidyr")
+library("TTR")
+library (knitr)
+
+```
+
+
+# Data collection
+
+Data for the player retreived for two seasons.
+
+#2016-2017
+
+Player's data from last season.
+```{r, echo=FALSE}
+KP16 <- read_html("http://www.euroleague.net/competition/players/showplayer?pcode=001255&seasoncode=E2016")
+statsKP16<-KP16 %>%
+    html_nodes("#tblPlayerPhaseStatistics .PlayerRankingContainer")%>%
+    html_text() 
+    
+statsKP16<-as.numeric(statsKP16)
+statsKP16
+
+
+```
+
+#2017-2018
+
+Player's data from current season.
+```{r, echo=FALSE}
+KP17 <- read_html("http://www.euroleague.net/competition/players/showplayer?pcode=001255&seasoncode=E2017")
+statsKP17<-KP17 %>%
+    html_nodes("#tblPlayerPhaseStatistics .PlayerRankingContainer")%>%
+    html_text() 
+    
+statsKP17<-as.numeric(statsKP17)
+statsKP17
+
+
+```
+
+
+#Population
+Data for all players.
+
+```{r, echo=FALSE}
+pir<- read_html("http://www.euroleague.net/main/statistics?mode=Leaders&entity=Players&seasonmode=Single&seasoncode=E2017&cat=Valuation&agg=Accumulated")
+allpir<-pir %>%
+    html_nodes("#main .game-center-statistics .StatsRowAlternatingGridResults td:nth-child(6)")%>%
+    html_text() 
+
+allpir<-as.numeric(allpir)
+head(allpir)
+
+```
+
+
+
+#Statistics 2016-2017
+
+Some basic statistics for the sample.
+
+
+```{r, echo=FALSE}
+
+summary(statsKP16)
+shapiro.test(statsKP16)
+```
+
+#Statistics 2017-2018
+Some basic statistics for the sample.
+
+
+```{r, echo=FALSE}
+
+summary(statsKP17)
+shapiro.test(statsKP17)
+```
+
+Statistics of the population.
+
+```{r, echo=FALSE}
+
+summary(allpir)
+shapiro.test(allpir)
+```
+
+
+# Plots
+
+Histogram of player.
+
+```{r, echo=FALSE}
+hist(statsKP17,col="grey")
+points(mean(statsKP17))
+abline(v=mean(statsKP17))
+```
+
+A boxplot.
+
+```{r, echo=FALSE}
+boxplot(statsKP17)
+points(mean(statsKP17))
+abline(h=mean(statsKP17))
+```
+
+A normal q-q plot.
+
+```{r, echo=FALSE}
+qqnorm(statsKP17)
+qqline(statsKP17)
+
+```
+
+Histogram of population.
+
+```{r, echo=FALSE}
+hist(allpir,col="grey")
+points(mean(allpir))
+abline(v=mean(allpir))
+```
+
+A boxplot.
+
+```{r, echo=FALSE}
+boxplot(allpir)
+points(mean(allpir))
+abline(h=mean(allpir))
+```
+
+A normal q-q plot.
+
+```{r, echo=FALSE}
+qqnorm(allpir)
+qqline(allpir)
+
+```
+#Comparison
+
+The probability of scoring 20 points is presented. A score is presented as well when the player belongs to the last 10% of all players.
+
+```{r, echo=FALSE}
+mu<-mean(allpir)
+sdev<-sd(allpir)
+percentile<-pnorm(20,mean=mu,sd=sdev,lower.tail = FALSE)
+percentile
+
+score<-qnorm(0.90,mu,sdev)
+score
+
+```
+
